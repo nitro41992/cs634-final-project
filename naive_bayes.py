@@ -35,7 +35,8 @@ features, labels = seperate_features_and_labels(data)
 # model.fit(features, labels)
 
 scores = []
-cv = KFold(n_splits=10, random_state=42, shuffle=False)
+splits = 10
+cv = KFold(n_splits=splits, random_state=42, shuffle=False)
 for train_index, test_index in cv.split(features):
     # print("Train Index: ", train_index, "\n")
     # print("Test Index: ", test_index, "\n")
@@ -44,9 +45,7 @@ for train_index, test_index in cv.split(features):
     model.fit(x_train, y_train)
     scores.append(model.score(x_test, y_test))
 
-print(np.mean(scores))
-
-print(cross_val_score(model, features, labels, cv=10))
+print(scores)
 
 # predicted = model.predict([[2, 1, 1, 1, 2, 1, 1, 1, 10, 3]])
 # print("Predicted Value:", predicted)
