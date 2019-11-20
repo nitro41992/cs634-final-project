@@ -1,5 +1,4 @@
 import csv
-import numpy as np
 from sklearn import preprocessing
 from sklearn.naive_bayes import GaussianNB
 
