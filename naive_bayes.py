@@ -6,12 +6,13 @@ from sklearn.model_selection import cross_val_score
 from sklearn.naive_bayes import GaussianNB
 import numpy as np
 
+
 le = preprocessing.LabelEncoder()
 model = GaussianNB()
 scaler = MinMaxScaler(feature_range=(0, 1))
 
 
-def get_labels(filename):
+def get_data(filename):
     with open(filename, "rt", encoding='utf8') as f:
         file = csv.reader(f)
         temp = list(file)
@@ -37,14 +38,14 @@ def seperate_features_and_labels(file):
     return(features, labels_encoded)
 
 
-data = get_labels('wpbc.data')
+data = get_data('wpbc.data')
 features, labels = seperate_features_and_labels(data)
 to_csv('Features.csv', features)
 to_csv('Labels.csv', labels)
 
 scores = []
 splits = 10
-cv = KFold(n_splits=splits, random_state=42, shuffle=False)
+cv = KFold(n_splits=splits, random_state=1, shuffle=False)
 for train_index, test_index in cv.split(features):
 
     x_train, x_test, y_train, y_test = features[train_index], features[
