@@ -20,9 +20,19 @@ def seperate_features_and_labels(file):
     features = []
     labels = []
     for row in file:
-        row = [float(i.replace('?','0')) for i in row]
-        features.append(tuple(row[1:]))
-        labels.append(row[-1])
+       for i in range(len(row)):
+            if row[i] == 'M':
+                row[i] = 1
+            elif row[i] == 'B':
+                row[i] = 0
+            elif row[i] == 'R':
+                row[i] = 1
+            elif row[i] == 'N':
+                row[i] = 0
+            elif row[i] == '?':
+                row[i] = 0
+       features.append(tuple(row[1:]))
+       labels.append(row[-1])
 
     labels_encoded = le.fit_transform(labels)
     features = scaler.fit_transform(features)
@@ -30,7 +40,7 @@ def seperate_features_and_labels(file):
     return(features, labels_encoded)
 
 
-data = get_labels('breast-cancer-wisconsin.data')
+data = get_labels('wpbc.data')
 features, labels = seperate_features_and_labels(data)
 # model.fit(features, labels)
 
@@ -45,7 +55,5 @@ for train_index, test_index in cv.split(features):
     model.fit(x_train, y_train)
     scores.append(model.score(x_test, y_test))
 
-print(scores)
+print(np.mean(scores))
 
-# predicted = model.predict([[2, 1, 1, 1, 2, 1, 1, 1, 10, 3]])
-# print("Predicted Value:", predicted)
