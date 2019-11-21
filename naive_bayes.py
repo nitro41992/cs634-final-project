@@ -19,7 +19,7 @@ def get_labels(filename):
 
 
 def to_csv(filename, nested_list):
-    with open(filename, 'w', newline='\n', encoding='utf-8') as myfile:
+    with open(filename, 'w', newline='\n', encoding='utf-8'):
         output_array = np.array(nested_list)
         np.savetxt(filename, output_array, delimiter=",")
 
