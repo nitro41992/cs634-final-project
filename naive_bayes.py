@@ -18,11 +18,17 @@ def get_labels(filename):
     return temp
 
 
+def to_csv(filename, nested_list):
+    with open(filename, 'w', newline='\n', encoding='utf-8') as myfile:
+        output_array = np.array(nested_list)
+        np.savetxt(filename, output_array, delimiter=",")
+
+
 def seperate_features_and_labels(file):
     features = []
     labels = []
     for row in file:
-        features.append(tuple(le.fit_transform(row[1:])))
+        features.append(tuple(le.fit_transform(row[2:])))
         labels.append(row[1])
 
     labels_encoded = le.fit_transform(labels)
@@ -33,8 +39,8 @@ def seperate_features_and_labels(file):
 
 data = get_labels('wpbc.data')
 features, labels = seperate_features_and_labels(data)
-print('Features: ', features)
-print('Labels: ', labels)
+to_csv('Features.csv', features)
+to_csv('Labels.csv', labels)
 
 scores = []
 splits = 10
