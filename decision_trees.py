@@ -5,6 +5,8 @@ from sklearn.model_selection import KFold
 from sklearn.model_selection import cross_val_score
 from sklearn.tree import DecisionTreeClassifier
 import numpy as np
+import math
+
 
 le = preprocessing.LabelEncoder()
 model = DecisionTreeClassifier()
@@ -24,15 +26,31 @@ def to_csv(filename, nested_list):
         np.savetxt(filename, output_array, delimiter=",")
 
 
+def clean_and_mean(lists):
+    for nested_list in lists:
+        for i, item in enumerate(nested_list):
+            if item == '?':
+                nested_list[i] = np.NaN
+
+    means = np.nanmean(np.array(lists).astype(float), axis=0)
+
+    for nested_list in lists:
+        for y, item in enumerate(nested_list):
+            if math.isnan(float(item)):
+                nested_list[y] = means[y]
+
+    return(np.array(lists))
+
+
 def seperate_features_and_labels(file):
     features = []
     labels = []
     for row in file:
-        features.append(tuple(le.fit_transform(row[2:])))
+        features.append(row[2:])
         labels.append(row[1])
 
     labels_encoded = le.fit_transform(labels)
-    features = scaler.fit_transform(features)
+    features = scaler.fit_transform(clean_and_mean(features))
 
     return(features, labels_encoded)
 
