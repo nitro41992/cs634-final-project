@@ -89,9 +89,12 @@ def ten_fold(model, features, labels):
     return scores
 
 
+print('Process started...')
+
 # Data is extracted from the .data file using the get_data function and seperated using the
 # seperate_features_and_labels function. The features and labels are exported to csv files for review:
 
+print('Isolating Features and Labels...')
 data = get_data('wpbc.data')
 features, labels = seperate_features_and_labels(data)
 to_csv('Features.csv', features)
@@ -100,6 +103,7 @@ to_csv('Labels.csv', labels)
 # The Gaussian Naive Bayes model is instantiated and is inputted into the ten_fold function along with the
 # features and labels. The scores are returned and the mean of the scores is outputted for review:
 
+print('Applying ten-fold cross validation to the Naive Bayes model on the data...')
 nb_model = GaussianNB()
 scores = ten_fold(nb_model, features, labels)
 nb_mean_score = "{:.1%}".format(np.mean(scores))
@@ -109,8 +113,11 @@ print(
 # The Decision Tree model is instantiated and is inputted into the ten_fold function along with the features
 # and labels. The scores are returned and the mean of the scores is outputted for review:
 
+print('Applying ten-fold cross validation to the Decision Tree model on the data...')
 dt_model = DecisionTreeClassifier()
 scores = ten_fold(dt_model, features, labels)
 dt_mean_score = "{:.1%}".format(np.mean(scores))
 print(
     f'The mean score of the Decision Tree Model for the data is {dt_mean_score}')
+
+print('Process completed.')
