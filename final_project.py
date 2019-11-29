@@ -1,4 +1,11 @@
 # Imported libraries:
+# sklearn.preprocessing in order to use LabelEncoder to convert the labels into a binary representation
+# sklearn.preprocessing.MinMaxScaler to scale the features so that there is no bias when the model is weighting the features
+# sklearn.naive_bayes.GaussianNB to use the Gaussian Naive Bayes model on the data
+# sklearn.tree.DecisionTreeClassifier to use the Decision Tree model on the data
+# sklearn.model_selection.KFold to prerform ten-fold cross validation on the data and obtain a mean score on each model
+# numpy in order to use numpy arrays for efficient data manipulation
+# csv to read and write to csv files
 
 from sklearn import preprocessing
 from sklearn.preprocessing import MinMaxScaler
@@ -8,6 +15,7 @@ from sklearn.tree import DecisionTreeClassifier
 import numpy as np
 import math
 import csv
+import os
 
 # Instantiation of both the LabelEncoder and the MinMaxScaler:
 
@@ -89,13 +97,21 @@ def ten_fold(model, features, labels):
     return scores
 
 
+while True:
+    filename = input(
+        'Enter the name of the transaction file. Include the file extension. (eg. \'.txt\') : ')
+    if(os.path.exists(filename) == False):
+        print('The file you selected does not exist, please try again')
+        continue
+    else:
+        break
 print('Process started...')
 
 # Data is extracted from the .data file using the get_data function and seperated using the
 # seperate_features_and_labels function. The features and labels are exported to csv files for review:
 
 print('Isolating Features and Labels...')
-data = get_data('wpbc.data')
+data = get_data(filename)
 features, labels = seperate_features_and_labels(data)
 to_csv('Features.csv', features)
 to_csv('Labels.csv', labels)
