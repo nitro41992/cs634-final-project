@@ -80,8 +80,9 @@ def seperate_features_and_labels(file):
 
 
 # The function below performs ten fold cross validation by indexing the features and labels,
-# randomly grouping the features and labels into sets of training and test data respectively.
-# A score is obatined by comparing the prediction of the model with the actual label associated with the features.
+# randomly grouping the features and labels into sets of training and test data respectively. Because there are ten
+# splits, the data is split into a 90 to 10 ratio of test and train respectively.
+# A score is obtained by comparing the prediction of the model with the actual label associated with the features.
 # The process is repeated ten times and a mean of the scores is calculated that represents the effectiveness of
 # the model in predicting the data.
 
