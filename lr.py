@@ -5,6 +5,8 @@ from sklearn.model_selection import KFold
 from sklearn.model_selection import cross_val_score
 from sklearn.naive_bayes import GaussianNB
 from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
 import pandas as pd
 import numpy as np
 import math
@@ -16,9 +18,12 @@ le_rvsp = preprocessing.LabelEncoder()
 le_rv_function = preprocessing.LabelEncoder()
 le_size = preprocessing.LabelEncoder()
 le_intervention = preprocessing.LabelEncoder()
+le_sloe = preprocessing.LabelEncoder()
 
 
-model = LogisticRegression(solver='lbfgs')
+model = RandomForestClassifier(n_estimators=10)
+
+
 scaler = MinMaxScaler(feature_range=(0, 1))
 
 
@@ -44,8 +49,9 @@ def clean_and_mean(lists):
     return(np.array(cleaned_lists))
 
 
-included_cols = [3, 4, 5, 6, 7, 8, 9, 10, 11,
-                 19, 20, 21, 22, 23, 25, 26, 27, 28, 29, 30]
+included_cols = [3, 4, 5, 6, 7, 8, 9, 10, 19,
+    20, 21, 22, 23, 25, 26, 27, 28, 29, 30]
+# print(len(included_cols))
 
 
 def seperate_features_and_labels(file):
@@ -54,43 +60,63 @@ def seperate_features_and_labels(file):
     for row in file:
         filt_row = list(row[i] for i in included_cols)
         features.append(filt_row)
-        # labels.append(row[16])
         labels.append(row[16])
 
     labels_encoded = le.fit_transform(labels)
 
-    columns = ['Sex (M/F)', 'BMI DM (1/0)', 'HTN (1/0)', 'COPD (1/0)', 'CTEPH (1/0)', 'ESRD (1/0)', 'Hx of Malignancy (1/0)', 'PE (1/0)', 'Original EDA  (cm2)', 'Original ESA (cm2)',
-               ' Original FAC (%)', 'Original EndoGLS (%)', 'Size/Location of Embolus', 'RVSP', 'RV', 'Size', 'RV Function', 'McConnell\'s Sign', 'TR Velocity', 'Intervention']
-
-    df_features = pd.DataFrame(features, columns=columns)
+    cols = ['Sex (M/F)',
+                'BMI',
+                'DM (1/0)',
+                'HTN (1/0)',
+                'COPD (1/0)',
+                'CTEPH (1/0)',
+                'ESRD (1/0)',
+                'Hx of Malignancy (1/0)',
+                'Original EDA  (cm2)',
+                'Original ESA (cm2)',
+                ' Original FAC (%)',
+                'Original EndoGLS (%)',
+                'Size/Location of Embolus',
+                'RVSP',
+                'RV Size',
+                'RV Function',
+                'McConnell\'s Sign',
+                'TR Velocity',
+                'Intervention']
+    # print(len(cols))
+    df_features = pd.DataFrame(features, columns=cols)
     df_features['Sex (M/F)'] = le_gender.fit_transform(df_features['Sex (M/F)'])
     df_features['RVSP'] = le_rvsp.fit_transform(df_features['RVSP'])
-    df_features['Size'] = le_size.fit_transform(df_features['Size'])
+    df_features['RV Size'] = le_size.fit_transform(df_features['RV Size'])
     df_features['RV Function'] = le_rv_function.fit_transform(
         df_features['RV Function'])
     df_features['Intervention'] = le_intervention.fit_transform(
         df_features['Intervention'])
+    df_features['Size/Location of Embolus'] = le_sloe.fit_transform(
+        df_features['Size/Location of Embolus'])
 
     df_features.to_csv(r'df_features.csv')
 
-    features = scaler.fit_transform(clean_and_mean((df_features)))
-    return(features, labels_encoded)
+    cleaned_features = scaler.fit_transform(clean_and_mean((df_features)))
+    return(cleaned_features, labels_encoded)
 
 
 data = get_data('scar_data.csv')
-features, labels = seperate_features_and_labels(data)
-to_csv('Features.csv', features)
-to_csv('Labels.csv', labels)
+f, l = seperate_features_and_labels(data)
+to_csv('Features.csv', f)
+to_csv('Labels.csv', l)
 
 
 scores = []
-splits = 10
+splits = 20
 cv = KFold(n_splits=splits, shuffle=True)
-for train_index, test_index in cv.split(features):
+for train_index, test_index in cv.split(f):
 
-    x_train, x_test, y_train, y_test = features[train_index], features[
-        test_index], labels[train_index], labels[test_index]
+    x_train, x_test, y_train, y_test = f[train_index], f[
+        test_index], l[train_index], l[test_index]
     model.fit(x_train, y_train)
+    print(model.predict(x_test))
     scores.append(model.score(x_test, y_test))
+print(model.predict(x_test))
+print(f'The mean score is: {np.mean(scores)}')
 
-print(np.mean(scores))
