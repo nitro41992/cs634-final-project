@@ -1,2 +1,5 @@
-Features.csv
-Labels.csv
+*.csv
+.ipynb_checkpoints
+.vscode
+test_1.py
+test.py
