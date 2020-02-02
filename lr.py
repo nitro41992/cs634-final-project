@@ -1,4 +1,6 @@
 import csv
+import os
+import pydotplus
 from sklearn import preprocessing
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import KFold
@@ -10,7 +12,8 @@ from sklearn.ensemble import RandomForestClassifier
 import pandas as pd
 import numpy as np
 import math
-
+from sklearn.tree import export_graphviz
+from io import StringIO
 
 le = preprocessing.LabelEncoder()
 le_gender = preprocessing.LabelEncoder()
@@ -53,18 +56,7 @@ included_cols = [3, 4, 5, 6, 7, 8, 9, 10, 19,
     20, 21, 22, 23, 25, 26, 27, 28, 29, 30]
 # print(len(included_cols))
 
-
-def seperate_features_and_labels(file):
-    features = []
-    labels = []
-    for row in file:
-        filt_row = list(row[i] for i in included_cols)
-        features.append(filt_row)
-        labels.append(row[16])
-
-    labels_encoded = le.fit_transform(labels)
-
-    cols = ['Sex (M/F)',
+cols = ['Sex (M/F)',
                 'BMI',
                 'DM (1/0)',
                 'HTN (1/0)',
@@ -83,6 +75,17 @@ def seperate_features_and_labels(file):
                 'McConnell\'s Sign',
                 'TR Velocity',
                 'Intervention']
+
+def seperate_features_and_labels(file):
+    features = []
+    labels = []
+    for row in file:
+        filt_row = list(row[i] for i in included_cols)
+        features.append(filt_row)
+        labels.append(row[42])
+
+    labels_encoded = le.fit_transform(labels)
+
     # print(len(cols))
     df_features = pd.DataFrame(features, columns=cols)
     df_features['Sex (M/F)'] = le_gender.fit_transform(df_features['Sex (M/F)'])
@@ -115,8 +118,16 @@ for train_index, test_index in cv.split(f):
     x_train, x_test, y_train, y_test = f[train_index], f[
         test_index], l[train_index], l[test_index]
     model.fit(x_train, y_train)
-    print(model.predict(x_test))
+
     scores.append(model.score(x_test, y_test))
-print(model.predict(x_test))
 print(f'The mean score is: {np.mean(scores)}')
 
+dotfile = StringIO()
+i_tree=0
+for tree_in_forest in model.estimators_:
+    if (i_tree ==3):        
+        export_graphviz(tree_in_forest, out_file=dotfile, feature_names=cols)
+        graph=pydotplus.graph_from_dot_data(dotfile.getvalue())
+        graph.write_png("dtree.png")       
+    i_tree = i_tree + 1
+# Image(graph.create_png())
